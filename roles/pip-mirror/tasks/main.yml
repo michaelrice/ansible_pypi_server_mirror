@@ -1,0 +1,43 @@
+---
+- name: Install python deps
+  apt: pkg={{item}} state=installed
+  with_items:
+  - python-dev
+  - python-pip
+  - python-virtualenv
+  - build-essential
+  - git
+
+- name: Add user group
+  group: name={{pypi_user}}
+
+- name: Add user
+  user: name={{pypi_user}} group={{pypi_user}} home=/home/{{pypi_user}} createhome=yes
+
+- name: Make directory to store pip packages
+  file: group={{pypi_user}} owner={{pypi_user}} path=/home/{{pypi_user}}/packages state=directory mode=0755
+
+- name: Install pypiserver into new venv
+  sudo: yes
+  sudo_user: "{{pypi_user}}"
+  pip: virtualenv=/home/{{pypi_user}}/venvs/pypi_server name=pypiserver
+
+- name: Install pypi-mirror from github
+  sudo: yes
+  sudo_user: "{{pypi_user}}"
+  pip: virtualenv=/home/{{pypi_user}}/venvs/pypi_server name="git+https://github.com/openstack-infra/pypi-mirror#egg=pypi-mirror"
+
+- name: Add the pypi-mirror yaml file
+  template: src=mirror-config.yml dest=/home/{{pypi_user}}/mirror-config.yml owner={{pypi_user}} group={{pypi_user}} mode=0644 
+
+- name: Add upstart file for pypi-mirror
+  template: src=pypi-mirror.conf dest=/etc/init/pypi-mirror.conf
+
+- name: Start pypi-mirror
+  service: name=pypi-mirror enabled=yes state=started
+
+- name: Populate local mirror with mirror-config packages
+  sudo: yes
+  sudo_user: "{{pypi_user}}"
+  command: /home/{{pypi_user}}/venvs/pypi_server/bin/run-mirror -c /home/{{pypi_user}}/mirror-config.yml
+  run_once: true

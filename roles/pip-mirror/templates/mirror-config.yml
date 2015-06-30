@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+cache-root: /tmp/cache
+
+mirrors:
+  - name: osad
+    projects:
+      - https://github.com/stackforge/os-ansible-deployment
+    output: /home/{{ pypi_user }}/packages

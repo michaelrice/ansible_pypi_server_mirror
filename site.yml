@@ -1,0 +1,6 @@
+---
+- hosts: pip-mirrors
+  remote_user: root
+
+  roles:
+  - pip-mirror
