@@ -1,0 +1,15 @@
+#These are the default, overwritable configurations for ansible_pypi_server_mirror.
+
+##User for pypi
+pypi_user: pypi_mirror
+
+#Apt depedency packages.
+pypi_apt_packages:
+  - python-dev
+  - python-pip
+  - python-virtualenv
+  - build-essential
+  - git
+
+#Github repo for pypi-mirror
+pypi_github_repo: "git+https://github.com/openstack-infra/pypi-mirror#egg=pypi-mirror"

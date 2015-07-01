@@ -2,11 +2,7 @@
 - name: Install python deps
   apt: pkg={{item}} state=installed
   with_items:
-  - python-dev
-  - python-pip
-  - python-virtualenv
-  - build-essential
-  - git
+    - "{{ pypi_apt_packages }}"
 
 - name: Add user group
   group: name={{pypi_user}}
@@ -25,7 +21,7 @@
 - name: Install pypi-mirror from github
   sudo: yes
   sudo_user: "{{pypi_user}}"
-  pip: virtualenv=/home/{{pypi_user}}/venvs/pypi_server name="git+https://github.com/openstack-infra/pypi-mirror#egg=pypi-mirror"
+  pip: virtualenv=/home/{{pypi_user}}/venvs/pypi_server name={{ pypi_github_repo }}
 
 - name: Add the pypi-mirror yaml file
   template: src=mirror-config.yml dest=/home/{{pypi_user}}/mirror-config.yml owner={{pypi_user}} group={{pypi_user}} mode=0644 
